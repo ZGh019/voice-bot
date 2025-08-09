@@ -126,14 +126,20 @@ function startListening(){
   try{ recognition.start(); }catch(e){ recognition = setupRecognition(); recognition.start(); }
 }
 
-startBtn.addEventListener('click', ()=>{
-  // زر التفاعل الأوّل — يتيح تشغيل الـ TTS/ميكروفون في المتصفحات
-  botActive = true;
-  botStatus.textContent = 'تشغيل...';
-  // تحية أولية ثم بدأ الاستماع
-  addBubble('أهلًا! اسمي روبوت القاعة — تفضّل تحدث الآن.', 'bot');
-  speakText('أهلًا! اسمي روبوت القاعة. تفضّل تحدث الآن.', ()=> startListening());
+  document.addEventListener('DOMContentLoaded', () => {
+  // يطلب إذن الميكروفون عند تحميل الصفحة
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(() => {
+      botActive = true;
+      botStatus.textContent = 'تشغيل...';
+      addBubble('أهلًا! اسمي روبوت القاعة — تفضّل تحدث الآن.', 'bot');
+      speakText('أهلًا! اسمي روبوت القاعة. تفضّل تحدث الآن.', ()=> startListening());
+    })
+    .catch(() => {
+      console.warn('المستخدم لم يمنح إذن الميكروفون.');
+    });
 });
+
 
 toggleListenBtn.addEventListener('click', ()=> {
   if(!recognition) return;
@@ -151,3 +157,4 @@ stopBtn.addEventListener('click', ()=> {
 </body>
 
 </html>
+
