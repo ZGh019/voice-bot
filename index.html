@@ -59,6 +59,15 @@ let listening = false;
 let botActive = false;
 const synth = window.speechSynthesis;
 
+document.addEventListener('touchstart', ()=>{
+  if (!botActive) {
+    botActive = true;
+    botStatus.textContent = 'تشغيل...';
+    speakText('أهلًا! أنا هنا لمساعدتك.', ()=> startListening());
+  }
+}, { once: true });
+
+  
 function addBubble(txt, who='bot'){
   const d = document.createElement('div');
   d.className = 'bubble ' + (who==='bot' ? 'bot' : 'user');
@@ -157,4 +166,5 @@ stopBtn.addEventListener('click', ()=> {
 </body>
 
 </html>
+
 
