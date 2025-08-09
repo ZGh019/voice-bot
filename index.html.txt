@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>قاعة الألعاب — بوت صوتي</title>
+<style>
+  /* (موجود ستايل بسيط - كما في المثال السابق، مقصّبلاً) */
+  body{margin:0;font-family:Arial, Tahoma;background:linear-gradient(135deg,#071226,#10293a);color:#eef2ff;display:flex;align-items:center;justify-content:center;height:100vh}
+  .box{width:95%;max-width:900px;background:rgba(255,255,255,0.02);padding:16px;border-radius:12px}
+  .center{display:flex;gap:12px;align-items:center}
+  .robot{width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,#7C4DFF,#00D4FF);display:flex;align-items:center;justify-content:center;font-size:36px}
+  .transcript{height:260px;overflow:auto;background:rgba(0,0,0,0.25);padding:12px;border-radius:10px;margin-top:12px}
+  .bubble{padding:8px 12px;border-radius:12px;margin-bottom:10px;max-width:80%}
+  .bot{background:linear-gradient(90deg,#7C4DFF,#00D4FF);color:#fff;align-self:flex-start}
+  .user{background:rgba(255,255,255,0.06);color:#fff;align-self:flex-end}
+  .controls{display:flex;gap:8px;margin-top:12px}
+  button{padding:10px 12px;border-radius:10px;border:none;cursor:pointer}
+  .primary{background:linear-gradient(90deg,#7C4DFF,#00D4FF);color:#fff}
+  .danger{background:#ff4757;color:#fff}
+</style>
+</head>
+<body>
+  <div class="box" role="main" aria-live="polite">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="robot">🤖</div>
+        <div>
+          <div style="font-weight:800">روبوت القاعة</div>
+          <div id="botStatus" style="font-size:13px;color:rgba(255,255,255,0.75)">موقوف — اضغط ابدأ</div>
+        </div>
+      </div>
+      <div>
+        <button id="startBtn" class="primary">ابدأ (إذن صوت)</button>
+      </div>
+    </div>
+
+    <div id="transcript" class="transcript" aria-live="polite"></div>
+
+    <div class="controls">
+      <button id="toggleListen">إيقاف/تشغيل الاستماع</button>
+      <button id="stopBtn" class="danger">إيقاف البوت</button>
+    </div>
+  </div>
+
+<script>
+/* ======= إعدادات مهمة ======= */
+let SERVER_API = 'https://YOUR-VERCEL-APP.vercel.app/api/chat'; // <-- عيّنه لاحقاً بعد نشر الـ backend
+/* ============================ */
+
+const startBtn = document.getElementById('startBtn');
+const toggleListenBtn = document.getElementById('toggleListen');
+const stopBtn = document.getElementById('stopBtn');
+const transcriptEl = document.getElementById('transcript');
+const botStatus = document.getElementById('botStatus');
+
+let recognition = null;
+let listening = false;
+let botActive = false;
+const synth = window.speechSynthesis;
+
+function addBubble(txt, who='bot'){
+  const d = document.createElement('div');
+  d.className = 'bubble ' + (who==='bot' ? 'bot' : 'user');
+  d.textContent = txt;
+  transcriptEl.appendChild(d);
+  transcriptEl.scrollTop = transcriptEl.scrollHeight;
+}
+
+function speakText(text, onend){
+  if(!synth){ if(onend) onend(); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ar-SA';
+  u.rate = 1;
+  u.pitch = 1;
+  u.onend = ()=> onend && onend();
+  // optional: pick a voice that contains 'ar' if available
+  const voices = synth.getVoices();
+  const arVoice = voices.find(v=>v.lang && v.lang.startsWith('ar'));
+  if(arVoice) u.voice = arVoice;
+  synth.speak(u);
+}
+
+function setupRecognition(){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition) { botStatus.textContent='المتصفح لا يدعم الاستماع'; return null; }
+  const r = new SpeechRecognition();
+  r.lang = 'ar-SA';
+  r.interimResults = false;
+  r.continuous = false;
+  r.onstart = ()=> { listening = true; botStatus.textContent='استماع...'; toggleListenBtn.textContent='أوقف الاستماع'; };
+  r.onend = ()=> { listening = false; botStatus.textContent= botActive ? 'جاهز للاستماع' : 'موقوف'; toggleListenBtn.textContent='تشغيل الاستماع'; };
+  r.onerror = (e)=> { console.warn('STT error', e); botStatus.textContent='خطأ بالاستماع'; };
+  r.onresult = async (ev)=>{
+    const text = ev.results[0][0].transcript.trim();
+    addBubble(text, 'user');
+    botStatus.textContent='جارٍ التفكير...';
+    try{
+      const reply = await fetchReply(text);
+      addBubble(reply, 'bot');
+      speakText(reply, ()=> { if(botActive) startListening(); botStatus.textContent='جاهز للاستماع'; });
+    }catch(err){
+      console.error(err);
+      addBubble('حدث خطأ في الخادم.', 'bot');
+      botStatus.textContent='خطأ بالخادم';
+    }
+  };
+  return r;
+}
+
+async function fetchReply(userText){
+  // ينادي الـ backend proxy الذي يتحدث مع OpenAI — هكذا لا نعرض المفتاح في العميل.
+  const res = await fetch(SERVER_API, {
+    method:'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ message: userText })
+  });
+  if(!res.ok) throw new Error('server error');
+  const json = await res.json();
+  return json.reply || 'عذراً، لم يصل رد.';
+}
+
+function startListening(){
+  if(!recognition) recognition = setupRecognition();
+  try{ recognition.start(); }catch(e){ recognition = setupRecognition(); recognition.start(); }
+}
+
+startBtn.addEventListener('click', ()=>{
+  // زر التفاعل الأوّل — يتيح تشغيل الـ TTS/ميكروفون في المتصفحات
+  botActive = true;
+  botStatus.textContent = 'تشغيل...';
+  // تحية أولية ثم بدأ الاستماع
+  addBubble('أهلًا! اسمي روبوت القاعة — تفضّل تحدث الآن.', 'bot');
+  speakText('أهلًا! اسمي روبوت القاعة. تفضّل تحدث الآن.', ()=> startListening());
+});
+
+toggleListenBtn.addEventListener('click', ()=> {
+  if(!recognition) return;
+  if(listening){ recognition.stop(); } else startListening();
+});
+
+stopBtn.addEventListener('click', ()=> {
+  botActive = false;
+  if(recognition) recognition.stop();
+  if(synth) synth.cancel();
+  botStatus.textContent='موقوف';
+  addBubble('تم إيقاف البوت.', 'bot');
+});
+</script>
+</body>
+</html>
