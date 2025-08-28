@@ -1,170 +1,180 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>قاعة الألعاب — بوت صوتي</title>
-<style>
-  /* (موجود ستايل بسيط - كما في المثال السابق، مقصّبلاً) */
-  body{margin:0;font-family:Arial, Tahoma;background:linear-gradient(135deg,#071226,#10293a);color:#eef2ff;display:flex;align-items:center;justify-content:center;height:100vh}
-  .box{width:95%;max-width:900px;background:rgba(255,255,255,0.02);padding:16px;border-radius:12px}
-  .center{display:flex;gap:12px;align-items:center}
-  .robot{width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,#7C4DFF,#00D4FF);display:flex;align-items:center;justify-content:center;font-size:36px}
-  .transcript{height:260px;overflow:auto;background:rgba(0,0,0,0.25);padding:12px;border-radius:10px;margin-top:12px}
-  .bubble{padding:8px 12px;border-radius:12px;margin-bottom:10px;max-width:80%}
-  .bot{background:linear-gradient(90deg,#7C4DFF,#00D4FF);color:#fff;align-self:flex-start}
-  .user{background:rgba(255,255,255,0.06);color:#fff;align-self:flex-end}
-  .controls{display:flex;gap:8px;margin-top:12px}
-  button{padding:10px 12px;border-radius:10px;border:none;cursor:pointer}
-  .primary{background:linear-gradient(90deg,#7C4DFF,#00D4FF);color:#fff}
-  .danger{background:#ff4757;color:#fff}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أخبار التقنية - الصفحة الرئيسية</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div class="box" role="main" aria-live="polite">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="robot">🤖</div>
-        <div>
-          <div style="font-weight:800">روبوت القاعة</div>
-          <div id="botStatus" style="font-size:13px;color:rgba(255,255,255,0.75)">موقوف — اضغط ابدأ</div>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-microchip"></i>
+                <span>أخبار التقنية</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="active">الرئيسية</a></li>
+                    <li><a href="latest-news.html">أحدث الأخبار</a></li>
+                    <li><a href="cyber-security.html">الأمن السيبراني</a></li>
+                    <li><a href="cloud-computing.html">الحوسبة السحابية</a></li>
+                    <li><a href="programming.html">البرمجة والتطوير</a></li>
+                    <li><a href="modern-tech.html">التكنولوجيا الحديثة</a></li>
+                </ul>
+            </nav>
         </div>
-      </div>
-      <div>
-        <button id="startBtn" class="primary">ابدأ (إذن صوت)</button>
-      </div>
-    </div>
+    </header>
 
-    <div id="transcript" class="transcript" aria-live="polite"></div>
+    <main>
+        <div class="container">
+            <div class="hero">
+                <h1>مرحباً بك في عالم التقنية</h1>
+                <p>مصدرك الموثوق لأحدث الأخبار والمعلومات في عالم التكنولوجيا والابتكار</p>
+            </div>
 
-    <div class="controls">
-      <button id="toggleListen">إيقاف/تشغيل الاستماع</button>
-      <button id="stopBtn" class="danger">إيقاف البوت</button>
-    </div>
-  </div>
+            <section class="section">
+                <h2 class="section-title">أقسام الموقع</h2>
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1614064641938-3bbee52942c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');"></div>
+                        <div class="card-content">
+                            <h3>أحدث الأخبار</h3>
+                            <p>تابع أحدث المستجدات في عالم التكنولوجيا والابتكارات التقنية من جميع أنحاء العالم.</p>
+                            <a href="latest-news.html">اكتشف المزيد <i class="fas fa-arrow-left"></i></a>
+                        </div>
+                    </div>
 
-<script>
-/* ======= إعدادات مهمة ======= */
-let SERVER_API = 'https://YOUR-VERCEL-APP.vercel.app/api/chat'; // <-- عيّنه لاحقاً بعد نشر الـ backend
-/* ============================ */
+                    <div class="card">
+                        <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');"></div>
+                        <div class="card-content">
+                            <h3>الأمن السيبراني</h3>
+                            <p>كل ما تحتاج معرفته عن حماية البيانات والشبكات والتهديدات الإلكترونية.</p>
+                            <a href="cyber-security.html">اكتشف المزيد <i class="fas fa-arrow-left"></i></a>
+                        </div>
+                    </div>
 
-const startBtn = document.getElementById('startBtn');
-const toggleListenBtn = document.getElementById('toggleListen');
-const stopBtn = document.getElementById('stopBtn');
-const transcriptEl = document.getElementById('transcript');
-const botStatus = document.getElementById('botStatus');
+                    <div class="card">
+                        <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');"></div>
+                        <div class="card-content">
+                            <h3>الحوسبة السحابية</h3>
+                            <p>تعرف على أحدث التقنيات السحابية وحلول التخزين والمعالجة عن بعد.</p>
+                            <a href="cloud-computing.html">اكتشف المزيد <i class="fas fa-arrow-left"></i></a>
+                        </div>
+                    </div>
 
-let recognition = null;
-let listening = false;
-let botActive = false;
-const synth = window.speechSynthesis;
+                    <div class="card">
+                        <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');"></div>
+                        <div class="card-content">
+                            <h3>البرمجة والتطوير</h3>
+                            <p>أحدث لغات البرمجة وأطر العمل وأدوات التطوير للمبرمجين والمطورين.</p>
+                            <a href="programming.html">اكتشف المزيد <i class="fas fa-arrow-left"></i></a>
+                        </div>
+                    </div>
 
-document.addEventListener('touchstart', ()=>{
-  if (!botActive) {
-    botActive = true;
-    botStatus.textContent = 'تشغيل...';
-    speakText('أهلًا! أنا هنا لمساعدتك.', ()=> startListening());
-  }
-}, { once: true });
+                    <div class="card">
+                        <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');"></div>
+                        <div class="card-content">
+                            <h3>التكنولوجيا الحديثة</h3>
+                            <p>استكشف أحدث الأجهزة والتقنيات الناشئة التي تشكل مستقبل عالم التقنية.</p>
+                            <a href="modern-tech.html">اكتشف المزيد <i class="fas fa-arrow-left"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-  
-function addBubble(txt, who='bot'){
-  const d = document.createElement('div');
-  d.className = 'bubble ' + (who==='bot' ? 'bot' : 'user');
-  d.textContent = txt;
-  transcriptEl.appendChild(d);
-  transcriptEl.scrollTop = transcriptEl.scrollHeight;
-}
+            <section class="section">
+                <h2 class="section-title">أحدث المقالات</h2>
+                <div class="articles">
+                    <article class="article">
+                        <div class="article-img" style="background-image: url('https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');"></div>
+                        <div class="article-content">
+                            <div class="article-meta">
+                                <span><i class="fas fa-user"></i> أحمد محمد</span>
+                                <span><i class="fas fa-calendar"></i> 15 مايو 2023</span>
+                            </div>
+                            <h3>مستقبل الذكاء الاصطناعي في العالم العربي</h3>
+                            <p>يستكشف هذا المقال كيف سيغير الذكاء الاصطناعي مشهد الأعمال والخدمات في العالم العربي خلال السنوات القادمة...</p>
+                            <a href="#" class="btn">قراءة المزيد</a>
+                        </div>
+                    </article>
 
-function speakText(text, onend){
-  if(!synth){ if(onend) onend(); return; }
-  synth.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'ar-SA';
-  u.rate = 1;
-  u.pitch = 1;
-  u.onend = ()=> onend && onend();
-  // optional: pick a voice that contains 'ar' if available
-  const voices = synth.getVoices();
-  const arVoice = voices.find(v=>v.lang && v.lang.startsWith('ar'));
-  if(arVoice) u.voice = arVoice;
-  synth.speak(u);
-}
+                    <article class="article">
+                        <div class="article-img" style="background-image: url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');"></div>
+                        <div class="article-content">
+                            <div class="article-meta">
+                                <span><i class="fas fa-user"></i> فاطمة علي</span>
+                                <span><i class="fas fa-calendar"></i> 12 مايو 2023</span>
+                            </div>
+                            <h3>أهم اتجاهات الأمن السيبراني لعام 2023</h3>
+                            <p>نستعرض في هذا المقال أبرز التهديدات الأمنية المتوقعة هذا العام وكيف يمكن حماية المؤسسات منها...</p>
+                            <a href="#" class="btn">قراءة المزيد</a>
+                        </div>
+                    </article>
 
-function setupRecognition(){
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SpeechRecognition) { botStatus.textContent='المتصفح لا يدعم الاستماع'; return null; }
-  const r = new SpeechRecognition();
-  r.lang = 'ar-SA';
-  r.interimResults = false;
-  r.continuous = false;
-  r.onstart = ()=> { listening = true; botStatus.textContent='استماع...'; toggleListenBtn.textContent='أوقف الاستماع'; };
-  r.onend = ()=> { listening = false; botStatus.textContent= botActive ? 'جاهز للاستماع' : 'موقوف'; toggleListenBtn.textContent='تشغيل الاستماع'; };
-  r.onerror = (e)=> { console.warn('STT error', e); botStatus.textContent='خطأ بالاستماع'; };
-  r.onresult = async (ev)=>{
-    const text = ev.results[0][0].transcript.trim();
-    addBubble(text, 'user');
-    botStatus.textContent='جارٍ التفكير...';
-    try{
-      const reply = await fetchReply(text);
-      addBubble(reply, 'bot');
-      speakText(reply, ()=> { if(botActive) startListening(); botStatus.textContent='جاهز للاستماع'; });
-    }catch(err){
-      console.error(err);
-      addBubble('حدث خطأ في الخادم.', 'bot');
-      botStatus.textContent='خطأ بالخادم';
-    }
-  };
-  return r;
-}
+                    <article class="article">
+                        <div class="article-img" style="background-image: url('https://images.unsplash.com/photo-1544383822-d4c76d71d2c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');"></div>
+                        <div class="article-content">
+                            <div class="article-meta">
+                                <span><i class="fas fa-user"></i> خالد سالم</span>
+                                <span><i class="fas fa-calendar"></i> 10 مايو 2023</span>
+                            </div>
+                            <h3>كيف تختار منصة الحوسبة السحابية المناسبة</h3>
+                            <p>دليل شامل لمساعدتك في اختيار أفضل منصة سحابية لمشروعك أو عملك مع مقارنة بين AWS و Azure و Google Cloud...</p>
+                            <a href="#" class="btn">قراءة المزيد</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </div>
+    </main>
 
-async function fetchReply(userText){
-  // ينادي الـ backend proxy الذي يتحدث مع OpenAI — هكذا لا نعرض المفتاح في العميل.
-  const res = await fetch(SERVER_API, {
-    method:'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ message: userText })
-  });
-  if(!res.ok) throw new Error('server error');
-  const json = await res.json();
-  return json.reply || 'عذراً، لم يصل رد.';
-}
-
-function startListening(){
-  if(!recognition) recognition = setupRecognition();
-  try{ recognition.start(); }catch(e){ recognition = setupRecognition(); recognition.start(); }
-}
-
-  document.addEventListener('DOMContentLoaded', () => {
-  // يطلب إذن الميكروفون عند تحميل الصفحة
-  navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(() => {
-      botActive = true;
-      botStatus.textContent = 'تشغيل...';
-      addBubble('أهلًا! اسمي روبوت القاعة — تفضّل تحدث الآن.', 'bot');
-      speakText('أهلًا! اسمي روبوت القاعة. تفضّل تحدث الآن.', ()=> startListening());
-    })
-    .catch(() => {
-      console.warn('المستخدم لم يمنح إذن الميكروفون.');
-    });
-});
-
-
-toggleListenBtn.addEventListener('click', ()=> {
-  if(!recognition) return;
-  if(listening){ recognition.stop(); } else startListening();
-});
-
-stopBtn.addEventListener('click', ()=> {
-  botActive = false;
-  if(recognition) recognition.stop();
-  if(synth) synth.cancel();
-  botStatus.textContent='موقوف';
-  addBubble('تم إيقاف البوت.', 'bot');
-});
-</script>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>من نحن</h3>
+                    <p>موقع أخبار التقنية هو مصدرك الموثوق لأحدث الأخبار والمعلومات في عالم التكنولوجيا والابتكار. نقدم محتوى عالي الجودة يغطي جميع جوانب التقنية الحديثة.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>روابط سريعة</h3>
+                    <ul>
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="latest-news.html">أحدث الأخبار</a></li>
+                        <li><a href="cyber-security.html">الأمن السيبراني</a></li>
+                        <li><a href="cloud-computing.html">الحوسبة السحابية</a></li>
+                        <li><a href="programming.html">البرمجة والتطوير</a></li>
+                        <li><a href="modern-tech.html">التكنولوجيا الحديثة</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>تواصل معنا</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> info@technews.com</li>
+                        <li><i class="fas fa-phone"></i> +966 50 123 4567</li>
+                        <li><i class="fas fa-map-marker-alt"></i> الرياض، المملكة العربية السعودية</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>تابعنا</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2023 أخبار التقنية. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
 </body>
-
 </html>
-
-
